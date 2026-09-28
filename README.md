@@ -8,6 +8,8 @@ moving parts.
 classifies severity → MariaDB incident/ticket logged → Langflow resolves (RCA
 runbook) → webapp GUI shows live event, Spark driver, and Langflow agent logs.
 
+![DB Incident GUI](assets/gui-screenshot.png)
+
 ## Structure
 
 ```
