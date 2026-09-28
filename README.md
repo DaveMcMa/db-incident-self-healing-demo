@@ -40,9 +40,6 @@ pip install -r requirements.txt   # needs kafka-python, Flask
 python -m demo_gui.run            # serves http://localhost:5001
 ```
 
-Requires access to the HPE lab (Kafka/MapR, the Spark driver pod via kubectl
-with the cluster kubeconfig, and the Langflow instance).
-
 ## Endpoints (gui)
 
 | Method | Path               | Purpose                            |
