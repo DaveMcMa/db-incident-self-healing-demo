@@ -1,0 +1,81 @@
+# AI Essentials — Classifier Training Set
+#
+# One row = one ENRICHED incident (Spark collapsed the raw alert storm into a
+# single feature vector) + the hand-applied label we want the classifier to learn.
+#
+# The classifier is deliberately SIMPLE and PREDICTABLE. These labels encode the
+# same rules as kb/severity-matrix.md so the model learns the behaviour we can
+# assert live on stage ("we predicted SEV-1 / Database Ops").
+#
+# Features (inputs):
+#   alert_count          -> number of raw alerts folded into the incident (storm size)
+#   p95_latency_ms       -> peak query latency in the window
+#   production           -> 0/1  (production entity)
+#   business_criticality -> 0/1  (customer-facing / revenue service)
+#   exploitability       -> 0/1  (known active exploit present)
+#   data_exposure        -> 0/1  (PII / regulated data at risk)
+#
+# Labels (targets):
+#   category -> one of: Database, Application, Compute, Security, Network
+#   severity -> SEV-1..SEV-5 per the severity matrix
+#
+# Labelling rules used (mirror kb/severity-matrix.md):
+#   - alert_count>100  pushes to SEV-1/SEV-2
+#   - production        +1 severity
+#   - business_criticality +1 severity
+#   - exploitability    +1 severity (security)
+#   - data_exposure     forces SEV-1
+#   - latency >= 500ms sustained is a Database degradation
+#
+# All rows are demo-grade synthetic data hand-authored for a reliable, small model.
+
+alert_count,p95_latency_ms,production,business_criticality,exploitability,data_exposure,category,severity
+187,645,1,1,0,0,Database,SEV-1
+240,780,1,1,1,1,Database,SEV-1
+150,690,1,1,0,0,Database,SEV-2
+135,610,1,0,0,0,Database,SEV-2
+118,525,1,0,0,0,Database,SEV-2
+12,420,0,0,0,0,Database,SEV-3
+25,455,0,0,0,0,Database,SEV-3
+40,480,1,1,0,0,Database,SEV-3
+55,505,1,1,0,0,Database,SEV-3
+5,120,0,0,0,0,Database,SEV-4
+8,180,0,0,0,0,Database,SEV-4
+3,95,0,0,0,0,Database,SEV-5
+1,80,0,0,0,0,Database,SEV-5
+165,720,1,1,0,0,Database,SEV-2
+99,515,1,0,0,0,Database,SEV-3
+210,600,1,1,0,0,Database,SEV-1
+132,540,0,0,0,0,Database,SEV-3
+7,100,1,0,0,0,Database,SEV-4
+15,110,1,1,0,0,Database,SEV-3
+2,90,1,0,0,0,Database,SEV-5
+45,85,1,1,0,0,Database,SEV-4
+22,75,0,0,0,0,Database,SEV-5
+9,60,0,0,0,0,Database,SEV-5
+4,50,0,0,0,0,Database,SEV-5
+120,700,1,1,1,1,Database,SEV-1
+88,505,1,0,0,0,Database,SEV-3
+60,495,1,1,0,0,Database,SEV-3
+66,488,0,0,0,0,Database,SEV-4
+31,320,0,0,0,0,Database,SEV-4
+17,210,0,0,0,0,Database,SEV-4
+6,140,0,0,0,0,Database,SEV-5
+130,660,1,1,0,0,Database,SEV-1
+142,645,1,0,0,0,Database,SEV-2
+115,530,0,0,0,0,Database,SEV-3
+95,520,1,1,0,0,Database,SEV-3
+107,545,1,0,0,0,Database,SEV-3
+73,470,0,0,0,0,Database,SEV-4
+38,250,0,0,0,0,Database,SEV-4
+14,150,0,0,0,0,Database,SEV-4
+3,70,0,0,0,0,Database,SEV-5
+198,755,1,1,1,1,Database,SEV-1
+175,700,1,1,0,0,Database,SEV-1
+160,680,1,0,0,0,Database,SEV-2
+125,560,1,1,0,0,Database,SEV-3
+108,540,1,1,0,0,Database,SEV-3
+85,505,1,0,0,0,Database,SEV-4
+52,430,0,0,0,0,Database,SEV-4
+27,195,0,0,0,0,Database,SEV-5
+11,115,0,0,0,0,Database,SEV-5

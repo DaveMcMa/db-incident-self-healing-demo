@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Essentials — Live Log Console</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo">AIE</span>
+        <span class="title">DB Incident Live Log Console</span>
+      </div>
+      <div class="status">
+        <span class="cell"><label>Producer</label><b id="st-producer">off</b></span>
+        <span class="cell"><label>Consumer</label><b id="st-consumer">off</b></span>
+        <span class="cell"><label>Phase</label><b id="st-phase" class="nrm">normal</b></span>
+        <span class="cell"><label>Sent</label><b id="st-sent">0</b></span>
+        <span class="cell"><label>Recv</label><b id="st-recv">0</b></span>
+      </div>
+    </header>
+
+    <section class="controls">
+      <button id="btn-start" class="primary">▶ Start</button>
+      <button id="btn-stop" disabled>■ Stop</button>
+      <button id="btn-fault" disabled>⚠ Inject Fault</button>
+      <button id="btn-clear" disabled>Reset Phase</button>
+      <button id="btn-reset-topic" class="danger">Reset Topic</button>
+      <label class="inline"><input type="checkbox" id="cb-autoscroll" checked> Autoscroll</label>
+      <button id="btn-clear-log" class="ghost">Clear log</button>
+      <button id="btn-settings" class="ghost">⚙ Settings</button>
+    </section>
+
+    <section class="logbox">
+      <div class="loghead">Live event stream <span id="count-label" class="count"></span></div>
+      <div id="log" class="log"></div>
+    </section>
+
+    <section class="logbox sparklogbox">
+      <div class="loghead">Spark driver logs <span class="count">(kubectl logs -f)</span></div>
+      <div id="sparklog" class="log sparklog"></div>
+    </section>
+
+    <section class="logbox langflowlogbox">
+      <div class="loghead">Langflow agent log <span class="count">(monitor/transactions)</span></div>
+      <div id="langflowlog" class="log langflowlog"></div>
+    </section>
+
+  <!-- Settings modal: user-configurable overrides for the three windows -->
+  <div id="settings-modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <span>Window settings</span>
+        <button id="btn-settings-close" class="ghost">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-hint">Overrides for the three windows. Leave a field blank
+          to keep its current (default) value. Changes take effect immediately.</p>
+
+        <fieldset>
+          <legend>1 · Live event stream</legend>
+          <label class="field"><span>Kafka topic</span>
+            <input type="text" id="set-kafka_topic" placeholder="rundmc" autocomplete="off"></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>2 · Spark driver logs</legend>
+          <label class="field"><span>Driver pod</span>
+            <input type="text" id="set-spark_pod" placeholder="siem-prod-v1-driver" autocomplete="off"></label>
+          <label class="field"><span>Namespace</span>
+            <input type="text" id="set-spark_ns" placeholder="project-user-dmcmahon" autocomplete="off"></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>3 · Langflow agent log</legend>
+          <label class="field"><span>Base URL</span>
+            <input type="text" id="set-langflow_base" placeholder="https://langflow-rundmc.hpepcai4.demo.local" autocomplete="off"></label>
+          <label class="field"><span>Flow ID</span>
+            <input type="text" id="set-langflow_flow_id" placeholder="365484e7-cf26-41aa-b8c0-343451f56ec1" autocomplete="off"></label>
+          <label class="field"><span>API key</span>
+            <input type="password" id="set-langflow_api_key" placeholder="sk-…" autocomplete="off"></label>
+        </fieldset>
+      </div>
+      <div class="modal-foot">
+        <button id="btn-settings-reset" class="ghost">Reset to defaults</button>
+        <span id="settings-msg" class="settings-msg"></span>
+        <button id="btn-settings-save" class="primary">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

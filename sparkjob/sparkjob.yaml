@@ -1,0 +1,72 @@
+apiVersion: sparkoperator.hpe.com/v1beta2
+kind: SparkApplication
+metadata:
+  name: "rundmc-siem"
+  namespace: "project-user-dmcmahon"
+  labels:
+    hpe-ezua/app: spark
+    hpe-ezua/type: app-service-user
+    sidecar.istio.io/inject: "false"
+spec:
+  type: Python
+  sparkVersion: 3.5.5
+  mode: cluster
+  image: "apache/spark:3.5.8-scala2.12-java11-python3-r-ubuntu"
+  imagePullPolicy: Always
+  imagePullSecrets:
+    - imagepull
+  mainApplicationFile: "local:///mounts/shared-volume/shared/dmc/Banking/spark/sparkjob.py"
+  restartPolicy:
+    type: Never
+  deps:
+    packages:
+      - org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.2
+      - mysql:mysql-connector-java:8.0.33
+  driver:
+    cores: 1
+    coreLimit: "1"
+    memory: 4G
+    labels:
+      version: 3.5.5
+    serviceAccount: spark-runner
+    volumeMounts:
+      - name: upv1
+        mountPath: /mounts/shared-volume/user
+      - name: pv1
+        mountPath: /mounts/shared-volume/shared
+  executor:
+    cores: 2
+    coreLimit: "2"
+    memory: 4G
+    instances: 1
+    labels:
+      version: 3.5.5
+    volumeMounts:
+      - name: upv1
+        mountPath: /mounts/shared-volume/user
+      - name: pv1
+        mountPath: /mounts/shared-volume/shared
+  sparkConf:
+    spark.driver.extraJavaOptions: -Divy.home=/tmp/.ivy2
+    spark.eventLog.dir: s3a://sparkhs.ddsepcai5/${system:spark.kubernetes.namespace}/
+    spark.eventLog.enabled: "false"
+    spark.executorEnv.SPARK_USER: dmcmahon
+    spark.hadoop.fs.s3a.bucket.sparkhs.ddsepcai5.aws.credentials.provider: com.amazonaws.auth.profile.ProfileCredentialsProvider
+    spark.hadoop.fs.s3a.bucket.sparkhs.ddsepcai5.connection.ssl.enabled: "false"
+    spark.hadoop.fs.s3a.bucket.sparkhs.ddsepcai5.endpoint: http://local-s3-service.ezdata-system.svc.cluster.local:30000/
+    spark.hadoop.fs.s3a.bucket.sparkhs.ddsepcai5.fast.upload: "true"
+    spark.hadoop.fs.s3a.bucket.sparkhs.ddsepcai5.impl: org.apache.hadoop.fs.s3a.S3AFileSystem
+    spark.hadoop.fs.s3a.bucket.sparkhs.ddsepcai5.path.style.access: "true"
+    spark.hadoop.fs.s3a.bucket.sparkhs.ddsepcai5.secret.key: s3
+    spark.jars.ivy: /tmp/.ivy2
+    spark.kubernetes.driverEnv.SPARK_USER: dmcmahon
+    spark.mapr.user.secret: hpe-autotix-generated-secret
+    spark.mapr.user.secret.autogen: "true"
+    spark.ui.view.acls: project-user-dmcmahon
+  volumes:
+    - name: upv1
+      persistentVolumeClaim:
+        claimName: user-pvc
+    - name: pv1
+      persistentVolumeClaim:
+        claimName: kubeflow-shared-pvc

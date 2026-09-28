@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+
+# Local settings overrides (per-machine overrides for the GUI windows)
+gui/settings.json
+
+# OS
+.DS_Store
+
+# Notebooks
+.ipynb_checkpoints/
